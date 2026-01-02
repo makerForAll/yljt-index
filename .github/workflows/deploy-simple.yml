@@ -1,0 +1,65 @@
+name: Deploy to Aliyun OSS (Simple)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.12.2
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build docs
+        run: pnpm docs:build
+
+      - name: Upload to OSS using ossutil
+        run: |
+          # 下载并安装 ossutil
+          wget https://gosspublic.alicdn.com/ossutil/1.7.14/ossutil64
+          chmod +x ossutil64
+          
+          # 配置 ossutil（使用环境变量方式，更安全）
+          cat > ossutilconfig << EOF
+          [Credentials]
+          language=CH
+          endpoint=${{ secrets.OSS_ENDPOINT }}
+          accessKeyId=${{ secrets.OSS_ACCESS_KEY_ID }}
+          accessKeySecret=${{ secrets.OSS_ACCESS_KEY_SECRET }}
+          EOF
+          
+          # 如果设置了清空目录，先删除
+          if [ "${{ secrets.OSS_CLEAR_BEFORE_UPLOAD }}" = "true" ]; then
+            ./ossutil64 rm oss://${{ secrets.OSS_BUCKET }}/${{ secrets.OSS_PREFIX }} \
+              --config-file ossutilconfig \
+              --recursive \
+              --force || true
+          fi
+          
+          # 上传文件
+          ./ossutil64 cp docs/.vuepress/dist/ oss://${{ secrets.OSS_BUCKET }}/${{ secrets.OSS_PREFIX }} \
+            --config-file ossutilconfig \
+            --recursive \
+            --update \
+            --exclude "*.map"
+          
+          echo "✅ 部署完成!"
+

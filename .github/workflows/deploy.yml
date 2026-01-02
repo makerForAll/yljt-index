@@ -1,0 +1,77 @@
+name: Deploy to Aliyun OSS
+
+on:
+  push:
+    branches:
+      - main  # 当推送到 main 分支时触发
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.12.2
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build docs
+        run: pnpm docs:build
+
+      - name: Setup Aliyun CLI
+        run: |
+          wget https://aliyuncli.alicdn.com/aliyun-cli-linux-latest-amd64.tgz
+          tar -xzf aliyun-cli-linux-latest-amd64.tgz
+          sudo mv aliyun /usr/local/bin/
+
+      - name: Configure Aliyun CLI
+        run: |
+          aliyun configure set \
+            --profile default \
+            --mode AK \
+            --region ${{ secrets.OSS_REGION }} \
+            --access-key-id ${{ secrets.OSS_ACCESS_KEY_ID }} \
+            --access-key-secret ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+
+      - name: Upload to OSS
+        run: |
+          # 使用 ossutil 上传文件
+          wget https://gosspublic.alicdn.com/ossutil/1.7.14/ossutil64
+          chmod +x ossutil64
+          sudo mv ossutil64 /usr/local/bin/ossutil
+          
+          # 配置 ossutil
+          ossutil config \
+            --endpoint ${{ secrets.OSS_ENDPOINT }} \
+            --access-key-id ${{ secrets.OSS_ACCESS_KEY_ID }} \
+            --access-key-secret ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+          
+          # 清空 OSS 目录（可选，如果需要完全替换）
+          if [ "${{ secrets.OSS_CLEAR_BEFORE_UPLOAD }}" = "true" ]; then
+            ossutil rm oss://${{ secrets.OSS_BUCKET }}/${{ secrets.OSS_PREFIX }} --recursive --force || true
+          fi
+          
+          # 上传构建文件
+          ossutil cp docs/.vuepress/dist/ oss://${{ secrets.OSS_BUCKET }}/${{ secrets.OSS_PREFIX }} \
+            --recursive \
+            --update \
+            --exclude "*.map"
+
+      - name: Deploy success
+        run: |
+          echo "✅ 部署成功!"
+          echo "🌐 访问地址: ${{ secrets.OSS_CUSTOM_DOMAIN || format('https://{0}.{1}.aliyuncs.com', secrets.OSS_BUCKET, secrets.OSS_REGION) }}"
+
