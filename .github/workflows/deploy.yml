@@ -43,8 +43,8 @@ jobs:
             --profile default \
             --mode AK \
             --region ${{ secrets.OSS_REGION }} \
-            --access-key-id ${{ secrets.OSS_ACCESS_KEY_ID }} \
-            --access-key-secret ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+            --access-key-id ${{ secrets.OSS_AK }} \
+            --access-key-secret ${{ secrets.OSS_SK }}
 
       - name: Upload to OSS
         run: |
@@ -56,8 +56,8 @@ jobs:
           # 配置 ossutil
           ossutil config \
             --endpoint ${{ secrets.OSS_ENDPOINT }} \
-            --access-key-id ${{ secrets.OSS_ACCESS_KEY_ID }} \
-            --access-key-secret ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+            --access-key-id ${{ secrets.OSS_AK }} \
+            --access-key-secret ${{ secrets.OSS_SK }}
           
           # 清空 OSS 目录（可选，如果需要完全替换）
           if [ "${{ secrets.OSS_CLEAR_BEFORE_UPLOAD }}" = "true" ]; then

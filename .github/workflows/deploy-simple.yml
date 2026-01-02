@@ -42,8 +42,8 @@ jobs:
           [Credentials]
           language=CH
           endpoint=${{ secrets.OSS_ENDPOINT }}
-          accessKeyId=${{ secrets.OSS_ACCESS_KEY_ID }}
-          accessKeySecret=${{ secrets.OSS_ACCESS_KEY_SECRET }}
+          accessKeyId=${{ secrets.OSS_AK }}
+          accessKeySecret=${{ secrets.OSS_SK }}
           EOF
           
           # 如果设置了清空目录，先删除

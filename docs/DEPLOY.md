@@ -6,8 +6,11 @@
 
 1. **阿里云 OSS Bucket**
    - 在阿里云控制台创建 OSS Bucket
+      
    - 记录 Bucket 名称和 Region（如：`oss-cn-hangzhou`）
    - 获取 Endpoint（如：`https://oss-cn-hangzhou.aliyuncs.com`）
+
+   
 
 2. **AccessKey**
    - 在阿里云控制台创建 AccessKey
@@ -28,10 +31,9 @@
 | Secret 名称 | 说明 | 示例值 |
 |-----------|------|--------|
 | `OSS_ENDPOINT` | OSS Endpoint | `https://oss-cn-hangzhou.aliyuncs.com` 或 `oss-cn-hangzhou.aliyuncs.com` |
-| `OSS_REGION` | OSS Region | `oss-cn-hangzhou` |
 | `OSS_BUCKET` | OSS Bucket 名称 | `my-bucket` |
-| `OSS_ACCESS_KEY_ID` | AccessKey ID | `LTAI5t...` |
-| `OSS_ACCESS_KEY_SECRET` | AccessKey Secret | `xxx...` |
+| `OSS_AK` | AccessKey ID | `LTAI5t...` |
+| `OSS_SK` | AccessKey Secret | `xxx...` |
 | `OSS_PREFIX` | OSS 路径前缀（可选） | `docs/` 或留空 |
 | `OSS_CLEAR_BEFORE_UPLOAD` | 上传前是否清空目录（可选） | `true` 或 `false`，默认 `false` |
 | `OSS_CUSTOM_DOMAIN` | 自定义域名（可选） | `docs.example.com` |
@@ -40,8 +42,8 @@
 
 - `OSS_ENDPOINT`: OSS 的 Endpoint 地址
 - `OSS_BUCKET`: OSS Bucket 名称
-- `OSS_ACCESS_KEY_ID`: 阿里云 AccessKey ID
-- `OSS_ACCESS_KEY_SECRET`: 阿里云 AccessKey Secret
+- `OSS_AK`: 阿里云 AccessKey ID
+- `OSS_SK`: 阿里云 AccessKey Secret
 
 ### 可选配置
 
